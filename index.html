@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect to RFID Reader</title>
+    <title>ACR39U RFID Reader</title>
 </head>
 <body>
-    <button onclick="connectUSB()">Connect to RFID Reader</button>
+    <button onclick="connectUSB()">Connect to ACR39U</button>
     <div id="status"></div>
     <div id="rfidData"></div>
 
@@ -15,10 +15,10 @@
 
         async function connectUSB() {
             try {
-                // ขออนุญาตจากผู้ใช้เพื่อเลือกอุปกรณ์ USB ที่ต้องการเชื่อมต่อ
+                // ขออนุญาตจากผู้ใช้ในการเลือกอุปกรณ์ USB ที่ต้องการเชื่อมต่อ
                 device = await navigator.usb.requestDevice({
                     filters: [
-                        { vendorId: 0x072f, productId: 0xb100 }  // Vendor ID และ Product ID ของเครื่องอ่าน RFID
+                        { vendorId: 0x072f, productId: 0xb100 }  // Vendor ID และ Product ID ของ ACR39U
                     ]
                 });
 
@@ -30,7 +30,7 @@
                 await device.claimInterface(0);
 
                 // อ่านข้อมูลจากอุปกรณ์
-                const result = await device.transferIn(5, 64); // อ่านข้อมูลจาก endpoint 5 (ตัวอย่าง)
+                const result = await device.transferIn(5, 64); // อ่านข้อมูลจาก endpoint 5
                 const decoder = new TextDecoder();
                 const data = decoder.decode(result.data);
                 document.getElementById('rfidData').innerText = "RFID Data: " + data;
