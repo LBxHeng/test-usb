@@ -12,29 +12,37 @@
 
     <script>
         let device;
-
+        
         async function connectUSB() {
             try {
-                // ขออนุญาตจากผู้ใช้ในการเลือกอุปกรณ์ USB ที่ต้องการเชื่อมต่อ
                 device = await navigator.usb.requestDevice({
                     filters: [
-                        { vendorId: 0x072f, productId: 0xb100 }  // Vendor ID และ Product ID ของ ACR39U
+                        { vendorId: 0x072f, productId: 0xb100 }  
                     ]
                 });
-
-                // เปิดการเชื่อมต่อกับอุปกรณ์
+                
                 await device.open();
-
-                // เลือก configuration และ claim interface
+                
+                // Log device configurations to inspect available interfaces
+                console.log('Configurations:', device.configurations);
+                
+                // Look for a non-HID interface if available
+                const configuration = device.configurations[0];
+                const interface = configuration.interfaces.find(i => 
+                    i.alternate.interfaceClass !== 0x03  // 0x03 is HID class
+                );
+                
+                if (!interface) {
+                    throw new Error('No accessible interface found');
+                }
+                
                 await device.selectConfiguration(1);
-                await device.claimInterface(0);
-
-                // อ่านข้อมูลจากอุปกรณ์
-                const result = await device.transferIn(5, 64); // อ่านข้อมูลจาก endpoint 5
+                await device.claimInterface(interface.interfaceNumber);
+                
+                const result = await device.transferIn(5, 64);
                 const decoder = new TextDecoder();
                 const data = decoder.decode(result.data);
                 document.getElementById('rfidData').innerText = "RFID Data: " + data;
-
                 document.getElementById('status').innerText = 'Device connected successfully!';
             } catch (error) {
                 console.error('Error:', error);
