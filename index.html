@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB Reader</title>
+</head>
+<body>
+    <button onclick="connectUSB()">Connect to USB</button>
+    <div id="usbResult"></div>
+
+    <script>
+        async function connectUSB() {
+            try {
+                const device = await navigator.usb.requestDevice({
+                    filters: [{ vendorId: 0x072f, productId: 0xb100 }]  // กำหนด vendorId และ productId ของอุปกรณ์ USB ที่ต้องการ
+                });
+                await device.open(); // เปิดการเชื่อมต่อกับอุปกรณ์ USB
+                await device.selectConfiguration(1); // เลือกการตั้งค่าคอนฟิก
+                await device.claimInterface(0); // ดำเนินการ claim interface ของอุปกรณ์ USB
+                
+                console.log("Device connected:", device);
+                document.getElementById("usbResult").innerText = `Device connected: ${device.productName}`;
+            } catch (error) {
+                console.error("Error connecting to USB device:", error);
+                document.getElementById("usbResult").innerText = "Failed to connect to device.";
+            }
+        }
+    </script>
+</body>
+</html>
